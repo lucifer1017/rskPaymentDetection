@@ -9,12 +9,10 @@ export function WalletButton() {
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
 
-  // Ensure component only renders wallet UI after client-side hydration
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Show loading state during SSR and initial client render
   if (!mounted) {
     return (
       <div className="px-6 py-3 bg-simple-button/50 border border-border rounded-lg animate-pulse">
@@ -41,7 +39,6 @@ export function WalletButton() {
     );
   }
 
-  // Filter to only show MetaMask connector (prioritize MetaMask-specific connector, fallback to injected)
   const metaMaskConnector =
     connectors.find(
       (connector) =>

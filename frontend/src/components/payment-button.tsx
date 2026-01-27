@@ -14,7 +14,7 @@ export function PaymentButton() {
     setMounted(true);
   }, []);
 
-  const { data: hasAccess } = useReadContract({
+  const { data: hasAccess, refetch: refetchAccess } = useReadContract({
     address: PAYMENT_ACCESS_CONTRACT_ADDRESS,
     abi: PAYMENT_ACCESS_ABI,
     functionName: "hasAccess",
@@ -40,6 +40,15 @@ export function PaymentButton() {
       hash,
     });
 
+  useEffect(() => {
+    if (isConfirmed && address && mounted) {
+      const timer = setTimeout(() => {
+        refetchAccess();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isConfirmed, address, mounted, refetchAccess]);
+
   const handlePayment = async () => {
     if (!price || !address) return;
 
@@ -57,7 +66,6 @@ export function PaymentButton() {
     }
   };
 
-  // Show consistent placeholder during SSR
   if (!mounted) {
     return (
       <div className="p-4 bg-secondary/50 border border-border rounded-lg">
@@ -119,10 +127,10 @@ export function PaymentButton() {
         </div>
       )}
 
-      {isConfirmed && (
+      {isConfirmed && !hasAccess && (
         <div className="p-4 bg-rsk-green/10 border border-rsk-green rounded-lg">
           <p className="text-sm text-rsk-green font-medium">
-            ✓ Transaction confirmed! Your access will be updated shortly.
+            ✓ Transaction confirmed! Updating access status...
           </p>
         </div>
       )}

@@ -2,7 +2,6 @@ import { http, createConfig } from "wagmi";
 import { defineChain } from "viem";
 import { injected } from "wagmi/connectors";
 
-// Rootstock Testnet chain definition
 export const rootstockTestnet = defineChain({
   id: 31,
   name: "Rootstock Testnet",

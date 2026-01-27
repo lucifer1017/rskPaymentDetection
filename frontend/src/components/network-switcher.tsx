@@ -15,17 +15,14 @@ export function NetworkSwitcher() {
     setMounted(true);
   }, []);
 
-  // Auto-switch to Rootstock Testnet when wallet is connected and on wrong network
   useEffect(() => {
     if (!mounted || !isConnected) return;
     if (chainId === rootstockTestnet.id) return;
 
-    // Attempt automatic switch
     switchChain(
       { chainId: rootstockTestnet.id },
       {
         onError: (err: Error & { code?: number }) => {
-          // Error code 4902 means chain not added to wallet
           if (err.code === 4902) {
             setChainNotAdded(true);
           }
@@ -34,17 +31,14 @@ export function NetworkSwitcher() {
     );
   }, [mounted, isConnected, chainId, switchChain]);
 
-  // Don't render during SSR
   if (!mounted) {
     return null;
   }
 
-  // Already on correct network
   if (chainId === rootstockTestnet.id) {
     return null;
   }
 
-  // Chain not added to wallet - show helpful message
   if (chainNotAdded || error) {
     return (
       <div className="p-4 bg-rsk-orange/20 border border-rsk-orange rounded-lg mb-6">
@@ -86,7 +80,6 @@ export function NetworkSwitcher() {
     );
   }
 
-  // Attempting to switch
   return (
     <div className="p-4 bg-rsk-orange/20 border border-rsk-orange rounded-lg mb-6">
       <div className="flex items-center justify-between">

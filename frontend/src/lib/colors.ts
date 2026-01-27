@@ -4,7 +4,6 @@
  */
 
 export const rootstockColors = {
-  // Primary Rootstock Colors
   orange: {
     DEFAULT: "#FF6B35", // Primary brand color (rsk-orange)
     light: "#FF8C5A",
@@ -31,13 +30,11 @@ export const rootstockColors = {
     dark: "#7B1FA2",
   },
 
-  // UI Colors
-  simpleButton: "#1A1A1A", // Button background (bg-simple-button)
-  secondary: "#0F0F0F", // Secondary background (bg-secondary)
-  border: "#333333", // Border color (border-border)
-  foreground: "#FFFFFF", // Text color (text-foreground)
+  simpleButton: "#1A1A1A",
+  secondary: "#0F0F0F",
+  border: "#333333",
+  foreground: "#FFFFFF",
   
-  // Standard colors
   white: "#FFFFFF",
   black: "#000000",
   gray: {
@@ -54,7 +51,6 @@ export const rootstockColors = {
   },
 } as const;
 
-// Tailwind CSS v4 theme configuration
 export const rootstockTheme = {
   colors: {
     "rsk-orange": rootstockColors.orange.DEFAULT,

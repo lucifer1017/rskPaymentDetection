@@ -10,7 +10,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
         <header className="mb-12">
           <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
             <div>
@@ -24,16 +23,12 @@ export default function Home() {
             <WalletButton />
           </div>
 
-          {/* Network Switcher */}
           <NetworkSwitcher />
         </header>
 
-        {/* Main Content */}
         <main className="space-y-6">
-          {/* Access Status Card */}
           <AccessStatus />
 
-          {/* Payment Section */}
           <div className="p-6 bg-secondary border border-border rounded-xl">
             <h2 className="text-xl font-semibold mb-4 text-foreground">
               Unlock Access
@@ -45,7 +40,6 @@ export default function Home() {
             <PaymentButton />
           </div>
 
-          {/* Info Section */}
           <div className="p-6 bg-secondary/50 border border-border rounded-xl">
             <h3 className="text-lg font-semibold mb-3 text-foreground">
               How It Works
@@ -72,7 +66,6 @@ export default function Home() {
             </ul>
           </div>
 
-          {/* Footer */}
           <footer className="pt-8 border-t border-border">
             <p className="text-center text-sm text-foreground/50">
               Built for Rootstock Testnet • Contract:{" "}

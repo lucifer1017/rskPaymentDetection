@@ -32,7 +32,6 @@ export function AccessStatus() {
     },
   });
 
-  // Show consistent placeholder during SSR
   if (!mounted) {
     return (
       <div className="p-6 bg-secondary border border-border rounded-xl">

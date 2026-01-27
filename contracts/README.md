@@ -1,57 +1,116 @@
-# Sample Hardhat 3 Beta Project (`node:test` and `viem`)
+# PaymentAccess Smart Contract
 
-This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
+A minimal, non-custodial payment-gated access contract for Rootstock Testnet. The contract detects RBTC payments and grants access to users who pay the required amount.
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+## Contract Overview
 
-## Project Overview
+**PaymentAccess** is a simple smart contract that:
+- Accepts RBTC payments via `payForAccess()` or direct transfers
+- Grants access to users who pay at least the fixed price (0.0001 tRBTC)
+- Emits events for payment received and access granted
+- Allows the owner to withdraw accumulated funds
+- Tracks total payments per user
 
-This example project includes:
+### Key Features
+- Fixed price payment (immutable, set at deployment)
+- Per-user access tracking
+- Reentrancy protection
+- Owner withdrawal functionality
+- Event emission for all state changes
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+## Prerequisites
 
-## Usage
+- Node.js (v18 or higher)
+- npm or yarn
+- A wallet with Rootstock Testnet RBTC for deployment
 
-### Running Tests
+## Installation
 
-To run all the tests in the project, execute the following command:
+1. Install dependencies:
+```bash
+npm install
+```
 
-```shell
+2. Set up environment variables:
+   - Copy `.env.example` to `.env`
+   - Fill in the required variables (see `.env.example` for details):
+     - `RSK_TESTNET_RPC_URL` - Rootstock Testnet RPC endpoint
+     - `PRIVATE_KEY` - Private key of the deployment account
+
+## Testing
+
+Run all tests:
+```bash
 npx hardhat test
 ```
 
-You can also selectively run the Solidity or `node:test` tests:
+The test suite covers:
+- Contract deployment and initialization
+- Payment processing and access granting
+- Event emission verification
+- Owner-only withdrawal functionality
+- Edge cases (insufficient payment, additional payments, etc.)
 
-```shell
-npx hardhat test solidity
-npx hardhat test nodejs
+## Deployment
+
+### Deploy to Rootstock Testnet
+
+1. Ensure your `.env` file is configured with:
+   - `RSK_TESTNET_RPC_URL`
+   - `PRIVATE_KEY` (account with testnet RBTC)
+
+2. Deploy the contract:
+```bash
+npx hardhat ignition deploy ignition/modules/PaymentAccess.ts --network rskTestnet
 ```
 
-### Make a deployment to Sepolia
+3. The deployment will output:
+   - Contract address
+   - Transaction hash
+   - Deployment artifacts in `ignition/deployments/chain-31/`
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+### Custom Price (Optional)
 
-To run the deployment to a local chain:
-
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+To deploy with a custom price (in wei):
+```bash
+npx hardhat ignition deploy ignition/modules/PaymentAccess.ts --network rskTestnet --parameters '{"PaymentAccessModule":{"price":"100000000000000"}}'
 ```
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
+Default price: `100_000_000_000_000` wei (0.0001 RBTC)
 
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
+## Contract Functions
 
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
+### Public Functions
+- `payForAccess()` - Pay for access (payable)
+- `hasAccess(address)` - Check if an address has access (view)
+- `price()` - Get the required payment amount (view)
+- `totalPaid(address)` - Get total amount paid by an address (view)
+- `contractBalance()` - Get contract's RBTC balance (view)
 
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
+### Owner Functions
+- `withdraw()` - Withdraw all contract funds (owner only)
+
+### Events
+- `PaymentReceived(address indexed payer, uint256 amount, uint256 newTotalPaid)`
+- `AccessGranted(address indexed account, uint256 price)`
+- `Withdrawn(address indexed owner, uint256 amount)`
+
+## Project Structure
+
+```
+contracts/
+├── contracts/
+│   └── PaymentAccess.sol      # Main contract
+├── test/
+│   └── PaymentAccess.ts       # Test suite
+├── ignition/
+│   └── modules/
+│       └── PaymentAccess.ts   # Deployment script
+├── hardhat.config.ts           # Hardhat configuration
+└── .env.example               # Environment variables template
 ```
 
-After setting the variable, you can run the deployment with the Sepolia network:
+## Network Configuration
 
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+The project is configured for **Rootstock Testnet** (Chain ID: 31). To deploy to other networks, update `hardhat.config.ts` accordingly.
+
