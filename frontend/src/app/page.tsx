@@ -1,65 +1,94 @@
-import Image from "next/image";
+"use client";
+
+import { WalletButton } from "@/components/wallet-button";
+import { AccessStatus } from "@/components/access-status";
+import { PaymentButton } from "@/components/payment-button";
+import { NetworkSwitcher } from "@/components/network-switcher";
+import { PAYMENT_ACCESS_CONTRACT_ADDRESS } from "@/lib/contract";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="min-h-screen bg-black text-white">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <header className="mb-12">
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+            <div>
+              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-rsk-orange to-rsk-green bg-clip-text text-transparent">
+                🔐 Rootstock Payment Access
+              </h1>
+              <p className="text-foreground/70">
+                Non-custodial payment detection & access unlock demo
+              </p>
+            </div>
+            <WalletButton />
+          </div>
+
+          {/* Network Switcher */}
+          <NetworkSwitcher />
+        </header>
+
+        {/* Main Content */}
+        <main className="space-y-6">
+          {/* Access Status Card */}
+          <AccessStatus />
+
+          {/* Payment Section */}
+          <div className="p-6 bg-secondary border border-border rounded-xl">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
+              Unlock Access
+            </h2>
+            <p className="text-sm text-foreground/70 mb-6">
+              Make a payment to unlock access to premium content or features.
+              This is a proof-of-concept demo running on Rootstock Testnet.
+            </p>
+            <PaymentButton />
+          </div>
+
+          {/* Info Section */}
+          <div className="p-6 bg-secondary/50 border border-border rounded-xl">
+            <h3 className="text-lg font-semibold mb-3 text-foreground">
+              How It Works
+            </h3>
+            <ul className="space-y-2 text-sm text-foreground/70">
+              <li className="flex items-start gap-2">
+                <span className="text-rsk-orange">1.</span>
+                <span>Connect your wallet (MetaMask or injected wallet)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-rsk-orange">2.</span>
+                <span>Ensure you're on Rootstock Testnet</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-rsk-orange">3.</span>
+                <span>Click "Pay" to send RBTC to the smart contract</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-rsk-orange">4.</span>
+                <span>
+                  Once payment is confirmed, your access will be granted
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Footer */}
+          <footer className="pt-8 border-t border-border">
+            <p className="text-center text-sm text-foreground/50">
+              Built for Rootstock Testnet • Contract:{" "}
+              <a
+                href={`https://explorer.testnet.rootstock.io/address/${PAYMENT_ACCESS_CONTRACT_ADDRESS}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs text-rsk-orange hover:underline"
+              >
+                {PAYMENT_ACCESS_CONTRACT_ADDRESS.slice(0, 10)}...
+                {PAYMENT_ACCESS_CONTRACT_ADDRESS.slice(-8)}
+              </a>
+            </p>
+          </footer>
+        </main>
+      </div>
     </div>
   );
 }
