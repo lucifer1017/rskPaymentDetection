@@ -95,10 +95,13 @@ cd ../contracts
 npx hardhat ignition deploy ignition/modules/PaymentAccess.ts --network rskTestnet
 ```
 
-5. **Update frontend contract address**
-   - Copy the deployed contract address
-   - Update `frontend/src/lib/contract.ts` with the new address
-   - Copy the ABI from `contracts/ignition/deployments/chain-31/artifacts/PaymentAccessModule#PaymentAccess.json`
+5. **Configure frontend contract address** (optional)
+   - The frontend uses the deployed contract address by default
+   - To use a different address, create a `.env.local` file in the `frontend/` directory:
+     ```
+     NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddress
+     ```
+   - If not set, it defaults to the deployed testnet address
 
 6. **Run frontend**
 ```bash
@@ -134,10 +137,13 @@ npm run dev
 ## 🔑 Key Features
 
 - ✅ **Non-custodial** - Users control their own funds
-- ✅ **Minimal** - Simple, focused proof-of-concept
-- ✅ **Event-driven** - Real-time updates via contract events
-- ✅ **Production-grade** - Proper error handling, reentrancy protection, and security best practices
-- ✅ **Testnet-ready** - Configured for Rootstock Testnet
+- ✅ **Production-ready security** - Uses OpenZeppelin's battle-tested Ownable, ReentrancyGuard, and Pausable
+- ✅ **Emergency pause** - Owner can pause/unpause the contract for maintenance or emergencies
+- ✅ **Event-driven** - Real-time updates via contract events with exponential backoff fallback
+- ✅ **Robust error handling** - Enhanced error messages and frontend error boundaries
+- ✅ **Access control** - Standardized ownership management via OpenZeppelin Ownable
+
+> **⚠️ Important**: While this contract uses production-grade OpenZeppelin libraries (Ownable, ReentrancyGuard, Pausable), it has **not been audited** and should undergo comprehensive security review before mainnet deployment. The contract includes emergency pause functionality and follows security best practices, but formal auditing is recommended for production use.
 
 ## 🌐 Network
 

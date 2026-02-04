@@ -21,25 +21,11 @@ export default defineConfig({
     },
   },
   networks: {
-    hardhatMainnet: {
-      type: "edr-simulated",
-      chainType: "l1",
-    },
-    hardhatOp: {
-      type: "edr-simulated",
-      chainType: "op",
-    },
-    sepolia: {
+    rskTestnet: {
       type: "http",
-      chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
-    },
-    rskTestnet:{
-      type: "http",
-      chainId:31,
+      chainId: 31,
       url: configVariable("RSK_TESTNET_RPC_URL"),
       accounts: [configVariable("PRIVATE_KEY")],
-    }
+    },
   },
 });

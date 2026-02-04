@@ -8,7 +8,7 @@ describe("PaymentAccess", async function () {
   const publicClient = await viem.getPublicClient();
   const [ownerClient, user1Client, user2Client] = await viem.getWalletClients();
 
-  const PRICE = 1_000_000_000_000_000n; // 0.001 ether/RBTC
+  const PRICE = 100_000_000_000_000n; // 0.0001 RBTC
 
   async function deployPaymentAccess() {
     const paymentAccess = await viem.deployContract("PaymentAccess", [PRICE]);
@@ -30,6 +30,12 @@ describe("PaymentAccess", async function () {
       functionName: "price",
     })) as bigint;
 
+    const paused = (await publicClient.readContract({
+      address: paymentAccess.address,
+      abi: paymentAccess.abi,
+      functionName: "paused",
+    })) as boolean;
+
     const ownerHasAccess = (await publicClient.readContract({
       address: paymentAccess.address,
       abi: paymentAccess.abi,
@@ -47,6 +53,7 @@ describe("PaymentAccess", async function () {
     // Address comparison should be case-insensitive (checksum vs non-checksum).
     assert.equal(owner.toLowerCase(), ownerClient.account.address.toLowerCase());
     assert.equal(price, PRICE);
+    assert.equal(paused, false);
     assert.equal(ownerHasAccess, false);
     assert.equal(totalPaidOwner, 0n);
   });
@@ -113,7 +120,6 @@ describe("PaymentAccess", async function () {
   it("allows additional payments after access is granted without reverting", async function () {
     const paymentAccess = await deployPaymentAccess();
 
-    // First payment: grants access
     const txHash1 = await ownerClient.writeContract({
       address: paymentAccess.address,
       abi: paymentAccess.abi,
@@ -122,7 +128,6 @@ describe("PaymentAccess", async function () {
     });
     await publicClient.waitForTransactionReceipt({ hash: txHash1 });
 
-    // Second, smaller payment: should not revert and should increase totalPaid
     const extra = 100n;
     const txHash2 = await ownerClient.writeContract({
       address: paymentAccess.address,
@@ -226,7 +231,6 @@ describe("PaymentAccess", async function () {
   it("allows only the owner to withdraw funds", async function () {
     const paymentAccess = await deployPaymentAccess();
 
-    // Fund the contract from user1
     const txHashPay = await user1Client.writeContract({
       address: paymentAccess.address,
       abi: paymentAccess.abi,
@@ -240,7 +244,6 @@ describe("PaymentAccess", async function () {
     });
     assert.equal(balanceBefore, PRICE);
 
-    // Non-owner (user1) should not be able to withdraw
     await assert.rejects(
       user1Client.writeContract({
         address: paymentAccess.address,
@@ -249,7 +252,6 @@ describe("PaymentAccess", async function () {
       }),
     );
 
-    // Owner can withdraw
     const txHashWithdraw = await ownerClient.writeContract({
       address: paymentAccess.address,
       abi: paymentAccess.abi,
@@ -261,6 +263,90 @@ describe("PaymentAccess", async function () {
       address: paymentAccess.address,
     });
     assert.equal(balanceAfter, 0n);
+  });
+
+  it("allows owner to pause and unpause the contract", async function () {
+    const paymentAccess = await deployPaymentAccess();
+
+    let paused = (await publicClient.readContract({
+      address: paymentAccess.address,
+      abi: paymentAccess.abi,
+      functionName: "paused",
+    })) as boolean;
+    assert.equal(paused, false);
+
+    const txHashPause = await ownerClient.writeContract({
+      address: paymentAccess.address,
+      abi: paymentAccess.abi,
+      functionName: "pause",
+    });
+    await publicClient.waitForTransactionReceipt({ hash: txHashPause });
+
+    paused = (await publicClient.readContract({
+      address: paymentAccess.address,
+      abi: paymentAccess.abi,
+      functionName: "paused",
+    })) as boolean;
+    assert.equal(paused, true);
+
+    await assert.rejects(
+      ownerClient.writeContract({
+        address: paymentAccess.address,
+        abi: paymentAccess.abi,
+        functionName: "payForAccess",
+        value: PRICE,
+      }),
+    );
+
+    const txHashUnpause = await ownerClient.writeContract({
+      address: paymentAccess.address,
+      abi: paymentAccess.abi,
+      functionName: "unpause",
+    });
+    await publicClient.waitForTransactionReceipt({ hash: txHashUnpause });
+
+    paused = (await publicClient.readContract({
+      address: paymentAccess.address,
+      abi: paymentAccess.abi,
+      functionName: "paused",
+    })) as boolean;
+    assert.equal(paused, false);
+
+    const txHashPay = await ownerClient.writeContract({
+      address: paymentAccess.address,
+      abi: paymentAccess.abi,
+      functionName: "payForAccess",
+      value: PRICE,
+    });
+    await publicClient.waitForTransactionReceipt({ hash: txHashPay });
+
+    const hasAccess = (await publicClient.readContract({
+      address: paymentAccess.address,
+      abi: paymentAccess.abi,
+      functionName: "hasAccess",
+      args: [ownerClient.account.address],
+    })) as boolean;
+    assert.equal(hasAccess, true);
+  });
+
+  it("prevents non-owner from pausing the contract", async function () {
+    const paymentAccess = await deployPaymentAccess();
+
+    await assert.rejects(
+      user1Client.writeContract({
+        address: paymentAccess.address,
+        abi: paymentAccess.abi,
+        functionName: "pause",
+      }),
+    );
+
+    await assert.rejects(
+      user1Client.writeContract({
+        address: paymentAccess.address,
+        abi: paymentAccess.abi,
+        functionName: "unpause",
+      }),
+    );
   });
 });
 

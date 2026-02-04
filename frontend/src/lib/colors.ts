@@ -1,6 +1,5 @@
 /**
  * Rootstock Color Scheme
- * Extracted from Hacktivator Marketplace design system
  */
 
 export const rootstockColors = {

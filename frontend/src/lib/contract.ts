@@ -1,5 +1,19 @@
-export const PAYMENT_ACCESS_CONTRACT_ADDRESS =
-  "0x35Ad6a4315f8608E26D3B2a70F0BEc3C7d753853" as const;
+// Contract address from environment variable - REQUIRED
+// After deploying PaymentAccess.sol to testnet, set NEXT_PUBLIC_CONTRACT_ADDRESS in frontend/.env.local
+if (!process.env.NEXT_PUBLIC_CONTRACT_ADDRESS) {
+  const errorMessage =
+    "NEXT_PUBLIC_CONTRACT_ADDRESS environment variable is required. " +
+    "Please deploy the contract first, then set it in frontend/.env.local file.";
+  
+  if (typeof window !== "undefined") {
+    throw new Error(errorMessage);
+  }
+  console.error("⚠️ CRITICAL:", errorMessage);
+}
+
+export const PAYMENT_ACCESS_CONTRACT_ADDRESS = (
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000"
+) as `0x${string}`;
 
 export const PAYMENT_ACCESS_ABI = [
   {
@@ -12,6 +26,16 @@ export const PAYMENT_ACCESS_ABI = [
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "EnforcedPause",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ExpectedPause",
+    type: "error",
   },
   {
     inputs: [
@@ -31,12 +55,29 @@ export const PAYMENT_ACCESS_ABI = [
   },
   {
     inputs: [],
-    name: "NotOwner",
+    name: "NothingToWithdraw",
     type: "error",
   },
   {
-    inputs: [],
-    name: "NothingToWithdraw",
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "OwnableInvalidOwner",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "OwnableUnauthorizedAccount",
     type: "error",
   },
   {
@@ -46,7 +87,23 @@ export const PAYMENT_ACCESS_ABI = [
   },
   {
     inputs: [],
-    name: "ReentrancyNotAllowed",
+    name: "ReentrancyGuardReentrantCall",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "balance",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "WithdrawFailed",
     type: "error",
   },
   {
@@ -66,6 +123,38 @@ export const PAYMENT_ACCESS_ABI = [
       },
     ],
     name: "AccessGranted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "Paused",
     type: "event",
   },
   {
@@ -97,6 +186,19 @@ export const PAYMENT_ACCESS_ABI = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "Unpaused",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "owner",
@@ -111,6 +213,10 @@ export const PAYMENT_ACCESS_ABI = [
     ],
     name: "Withdrawn",
     type: "event",
+  },
+  {
+    stateMutability: "payable",
+    type: "fallback",
   },
   {
     inputs: [],
@@ -159,6 +265,26 @@ export const PAYMENT_ACCESS_ABI = [
   },
   {
     inputs: [],
+    name: "pause",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "paused",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "payForAccess",
     outputs: [],
     stateMutability: "payable",
@@ -178,6 +304,13 @@ export const PAYMENT_ACCESS_ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -194,6 +327,26 @@ export const PAYMENT_ACCESS_ABI = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "unpause",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

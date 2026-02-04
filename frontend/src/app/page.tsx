@@ -4,6 +4,7 @@ import { WalletButton } from "@/components/wallet-button";
 import { AccessStatus } from "@/components/access-status";
 import { PaymentButton } from "@/components/payment-button";
 import { NetworkSwitcher } from "@/components/network-switcher";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { PAYMENT_ACCESS_CONTRACT_ADDRESS } from "@/lib/contract";
 
 export default function Home() {
@@ -20,14 +21,20 @@ export default function Home() {
                 Non-custodial payment detection & access unlock demo
               </p>
             </div>
-            <WalletButton />
+            <ErrorBoundary>
+              <WalletButton />
+            </ErrorBoundary>
           </div>
 
-          <NetworkSwitcher />
+          <ErrorBoundary>
+            <NetworkSwitcher />
+          </ErrorBoundary>
         </header>
 
         <main className="space-y-6">
-          <AccessStatus />
+          <ErrorBoundary>
+            <AccessStatus />
+          </ErrorBoundary>
 
           <div className="p-6 bg-secondary border border-border rounded-xl">
             <h2 className="text-xl font-semibold mb-4 text-foreground">
@@ -37,7 +44,9 @@ export default function Home() {
               Make a payment to unlock access to premium content or features.
               This is a proof-of-concept demo running on Rootstock Testnet.
             </p>
-            <PaymentButton />
+            <ErrorBoundary>
+              <PaymentButton />
+            </ErrorBoundary>
           </div>
 
           <div className="p-6 bg-secondary/50 border border-border rounded-xl">

@@ -14,9 +14,22 @@ A minimal, non-custodial payment-gated access contract for Rootstock Testnet. Th
 ### Key Features
 - Fixed price payment (immutable, set at deployment)
 - Per-user access tracking
-- Reentrancy protection
-- Owner withdrawal functionality
+- **Production-grade security** using OpenZeppelin's:
+  - `Ownable` - Standardized ownership management
+  - `ReentrancyGuard` - Protection against reentrancy attacks
+  - `Pausable` - Emergency pause functionality
+- Owner withdrawal functionality with detailed error reporting
 - Event emission for all state changes
+- Comprehensive test coverage including pause/unpause scenarios
+
+### Owner Functions
+- `pause()` - Pause the contract (prevents new payments)
+- `unpause()` - Unpause the contract (resumes payments)
+- `withdraw()` - Withdraw contract balance
+- `transferOwnership(address)` - Transfer ownership to new address
+- `renounceOwnership()` - Renounce ownership (irreversible)
+
+> **⚠️ Note**: This contract uses production-grade OpenZeppelin libraries but has not been formally audited. Comprehensive security review and testing are recommended before mainnet deployment.
 
 ## Prerequisites
 

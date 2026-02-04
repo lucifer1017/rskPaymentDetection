@@ -1,36 +1,10 @@
 "use client";
 
-import { useAccount, useReadContract } from "wagmi";
-import { PAYMENT_ACCESS_CONTRACT_ADDRESS, PAYMENT_ACCESS_ABI } from "@/lib/contract";
+import { usePaymentAccess } from "@/lib/use-payment-access";
 import { formatEther } from "viem";
-import { useEffect, useState } from "react";
 
 export function AccessStatus() {
-  const [mounted, setMounted] = useState(false);
-  const { address } = useAccount();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const { data: hasAccess, isLoading: isLoadingAccess } = useReadContract({
-    address: PAYMENT_ACCESS_CONTRACT_ADDRESS,
-    abi: PAYMENT_ACCESS_ABI,
-    functionName: "hasAccess",
-    args: address ? [address] : undefined,
-    query: {
-      enabled: !!address && mounted,
-    },
-  });
-
-  const { data: price, isLoading: isLoadingPrice } = useReadContract({
-    address: PAYMENT_ACCESS_CONTRACT_ADDRESS,
-    abi: PAYMENT_ACCESS_ABI,
-    functionName: "price",
-    query: {
-      enabled: mounted,
-    },
-  });
+  const { hasAccess, price, isLoading, mounted, address } = usePaymentAccess();
 
   if (!mounted) {
     return (
@@ -52,7 +26,7 @@ export function AccessStatus() {
     );
   }
 
-  if (isLoadingAccess || isLoadingPrice) {
+  if (isLoading) {
     return (
       <div className="p-6 bg-secondary border border-border rounded-xl">
         <div className="animate-pulse space-y-3">
