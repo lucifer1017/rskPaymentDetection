@@ -1,41 +1,28 @@
 # PaymentAccess Smart Contract
 
-A minimal, non-custodial payment-gated access contract for Rootstock Testnet. The contract detects RBTC payments and grants access to users who pay the required amount.
+A non-custodial payment-gated access contract for Rootstock Testnet. Users pay RBTC to gain access, and the contract tracks payments and access status.
+
+## What This Directory Contains
+
+- **`contracts/PaymentAccess.sol`** - Main smart contract
+- **`test/PaymentAccess.ts`** - Test suite
+- **`ignition/modules/PaymentAccess.ts`** - Deployment script
+- **`hardhat.config.ts`** - Hardhat configuration for Rootstock Testnet
 
 ## Contract Overview
 
-**PaymentAccess** is a simple smart contract that:
+**PaymentAccess** is a single smart contract that:
 - Accepts RBTC payments via `payForAccess()` or direct transfers
 - Grants access to users who pay at least the fixed price (0.0001 tRBTC)
-- Emits events for payment received and access granted
-- Allows the owner to withdraw accumulated funds
 - Tracks total payments per user
+- Allows owner to withdraw funds, pause/unpause the contract
 
-### Key Features
-- Fixed price payment (immutable, set at deployment)
-- Per-user access tracking
-- **Production-grade security** using OpenZeppelin's:
-  - `Ownable` - Standardized ownership management
-  - `ReentrancyGuard` - Protection against reentrancy attacks
-  - `Pausable` - Emergency pause functionality
-- Owner withdrawal functionality with detailed error reporting
-- Event emission for all state changes
-- Comprehensive test coverage including pause/unpause scenarios
+### Security Features
+- Uses OpenZeppelin's `Ownable` for access control
+- Uses OpenZeppelin's `ReentrancyGuard` for reentrancy protection
+- Uses OpenZeppelin's `Pausable` for emergency pause functionality
 
-### Owner Functions
-- `pause()` - Pause the contract (prevents new payments)
-- `unpause()` - Unpause the contract (resumes payments)
-- `withdraw()` - Withdraw contract balance
-- `transferOwnership(address)` - Transfer ownership to new address
-- `renounceOwnership()` - Renounce ownership (irreversible)
-
-> **⚠️ Note**: This contract uses production-grade OpenZeppelin libraries but has not been formally audited. Comprehensive security review and testing are recommended before mainnet deployment.
-
-## Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-- A wallet with Rootstock Testnet RBTC for deployment
+> **Note**: This contract uses OpenZeppelin libraries but has not been formally audited.
 
 ## Installation
 
@@ -46,9 +33,15 @@ npm install
 
 2. Set up environment variables:
    - Copy `.env.example` to `.env`
-   - Fill in the required variables (see `.env.example` for details):
-     - `RSK_TESTNET_RPC_URL` - Rootstock Testnet RPC endpoint
-     - `PRIVATE_KEY` - Private key of the deployment account
+   - Set `RSK_TESTNET_RPC_URL` - Rootstock Testnet RPC endpoint
+   - Set `PRIVATE_KEY` - Private key of the deployment account
+
+## Compiling
+
+Compile the contract:
+```bash
+npx hardhat compile
+```
 
 ## Testing
 
@@ -60,36 +53,25 @@ npx hardhat test
 The test suite covers:
 - Contract deployment and initialization
 - Payment processing and access granting
-- Event emission verification
-- Owner-only withdrawal functionality
-- Edge cases (insufficient payment, additional payments, etc.)
+- Event emission
+- Owner-only functions (withdraw, pause, unpause)
+- Edge cases (insufficient payment, additional payments)
 
 ## Deployment
 
-### Deploy to Rootstock Testnet
-
-1. Ensure your `.env` file is configured with:
-   - `RSK_TESTNET_RPC_URL`
-   - `PRIVATE_KEY` (account with testnet RBTC)
-
-2. Deploy the contract:
+Deploy to Rootstock Testnet:
 ```bash
 npx hardhat ignition deploy ignition/modules/PaymentAccess.ts --network rskTestnet
 ```
 
-3. The deployment will output:
-   - Contract address
-   - Transaction hash
-   - Deployment artifacts in `ignition/deployments/chain-31/`
+Default price: `100_000_000_000_000` wei (0.0001 RBTC)
 
-### Custom Price (Optional)
-
-To deploy with a custom price (in wei):
+To deploy with a custom price:
 ```bash
 npx hardhat ignition deploy ignition/modules/PaymentAccess.ts --network rskTestnet --parameters '{"PaymentAccessModule":{"price":"100000000000000"}}'
 ```
 
-Default price: `100_000_000_000_000` wei (0.0001 RBTC)
+Deployment artifacts are saved in `ignition/deployments/chain-31/`
 
 ## Contract Functions
 
@@ -99,31 +81,23 @@ Default price: `100_000_000_000_000` wei (0.0001 RBTC)
 - `price()` - Get the required payment amount (view)
 - `totalPaid(address)` - Get total amount paid by an address (view)
 - `contractBalance()` - Get contract's RBTC balance (view)
+- `paused()` - Check if contract is paused (view)
 
 ### Owner Functions
-- `withdraw()` - Withdraw all contract funds (owner only)
+- `withdraw()` - Withdraw all contract funds
+- `pause()` - Pause the contract (prevents new payments)
+- `unpause()` - Unpause the contract
+- `transferOwnership(address)` - Transfer ownership
+- `renounceOwnership()` - Renounce ownership (irreversible)
 
 ### Events
 - `PaymentReceived(address indexed payer, uint256 amount, uint256 newTotalPaid)`
 - `AccessGranted(address indexed account, uint256 price)`
 - `Withdrawn(address indexed owner, uint256 amount)`
-
-## Project Structure
-
-```
-contracts/
-├── contracts/
-│   └── PaymentAccess.sol      # Main contract
-├── test/
-│   └── PaymentAccess.ts       # Test suite
-├── ignition/
-│   └── modules/
-│       └── PaymentAccess.ts   # Deployment script
-├── hardhat.config.ts           # Hardhat configuration
-└── .env.example               # Environment variables template
-```
+- `OwnershipTransferred(address indexed previousOwner, address indexed newOwner)`
+- `Paused(address account)`
+- `Unpaused(address account)`
 
 ## Network Configuration
 
-The project is configured for **Rootstock Testnet** (Chain ID: 31). To deploy to other networks, update `hardhat.config.ts` accordingly.
-
+Configured for **Rootstock Testnet** (Chain ID: 31). Network settings are in `hardhat.config.ts`.

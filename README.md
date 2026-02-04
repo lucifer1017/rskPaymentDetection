@@ -1,31 +1,29 @@
 # Rootstock Payment Detection & Access Unlock Demo
 
-A minimal, non-custodial proof-of-concept demonstrating how a Rootstock smart contract can detect RBTC payments and unlock access to content or features. This project showcases payment confirmation logic without building a full payment system.
+A proof-of-concept demonstrating payment detection and access unlocking on Rootstock Testnet. Users pay RBTC to a smart contract to gain access, and the frontend displays their access status.
 
 ## 🎯 Project Overview
 
-This demo consists of two main components:
+Two main components:
 
-1. **Smart Contract** (`contracts/`) - A Solidity contract deployed on Rootstock Testnet that handles payment detection and access management
-2. **Frontend** (`frontend/`) - A Next.js web application that interacts with the contract, allowing users to connect wallets, make payments, and view access status
+1. **Smart Contract** (`contracts/`) - Solidity contract that accepts RBTC payments and grants access
+2. **Frontend** (`frontend/`) - Next.js app for wallet connection, payments, and access status
 
-## 🔄 How It Works
+## 🔄 Project Flow
 
-### Payment Flow
+1. **User connects wallet** → MetaMask connects to Rootstock Testnet
+2. **Network switching** → Frontend automatically switches to Rootstock Testnet (Chain ID 31) if needed
+3. **Access check** → Frontend queries contract to check if user has access
+4. **Payment** → User clicks "Pay" button, sends 0.0001 tRBTC to contract
+5. **Transaction** → Contract receives payment, emits events, grants access
+6. **UI update** → Frontend listens for events and updates access status automatically
 
-1. **User connects wallet** → MetaMask or injected wallet connects to Rootstock Testnet
-2. **Network verification** → Frontend automatically switches to Rootstock Testnet (or prompts user to add it)
-3. **Access check** → Frontend queries the contract to check if the user already has access
-4. **Payment** → User clicks "Pay" button, sending 0.0001 tRBTC to the contract
-5. **Transaction confirmation** → Contract receives payment, emits events, and grants access
-6. **Access granted** → Frontend automatically updates to show unlocked status
+### Smart Contract
 
-### Smart Contract Logic
-
-- **Fixed Price**: Contract requires exactly 0.0001 tRBTC (configurable at deployment)
-- **Access Tracking**: Each address's access status is stored in a mapping
-- **Event Emission**: Contract emits `PaymentReceived` and `AccessGranted` events
-- **Owner Withdrawal**: Contract owner can withdraw accumulated funds
+- Fixed price: 0.0001 tRBTC (set at deployment)
+- Tracks access per address
+- Emits `PaymentReceived` and `AccessGranted` events
+- Owner can withdraw funds and pause/unpause contract
 
 ## 📁 Project Structure
 
@@ -95,13 +93,12 @@ cd ../contracts
 npx hardhat ignition deploy ignition/modules/PaymentAccess.ts --network rskTestnet
 ```
 
-5. **Configure frontend contract address** (optional)
-   - The frontend uses the deployed contract address by default
-   - To use a different address, create a `.env.local` file in the `frontend/` directory:
+5. **Configure frontend contract address**
+   - Create `.env.local` in `frontend/` directory:
      ```
      NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddress
      ```
-   - If not set, it defaults to the deployed testnet address
+   - Use the address from step 4 deployment output
 
 6. **Run frontend**
 ```bash
@@ -131,19 +128,20 @@ npm run dev
 
 ## 📚 Documentation
 
-- **[Contracts README](https://github.com/lucifer1017/rskPaymentDetection/blob/main/contracts/README.md)** - Detailed contract documentation, deployment guide, and API reference
+- **[Contracts README](https://github.com/lucifer1017/rskPaymentDetection/blob/main/contracts/README.md)** - Contract documentation, testing, and deployment
+- **[Frontend README](https://github.com/lucifer1017/rskPaymentDetection/blob/main/frontend/README.md)** - Frontend setup and component overview
 
 
 ## 🔑 Key Features
 
-- ✅ **Non-custodial** - Users control their own funds
-- ✅ **Production-ready security** - Uses OpenZeppelin's battle-tested Ownable, ReentrancyGuard, and Pausable
-- ✅ **Emergency pause** - Owner can pause/unpause the contract for maintenance or emergencies
-- ✅ **Event-driven** - Real-time updates via contract events with exponential backoff fallback
-- ✅ **Robust error handling** - Enhanced error messages and frontend error boundaries
-- ✅ **Access control** - Standardized ownership management via OpenZeppelin Ownable
+- **Non-custodial** - Users control their own funds
+- **OpenZeppelin libraries** - Uses Ownable, ReentrancyGuard, and Pausable
+- **Emergency pause** - Owner can pause/unpause the contract
+- **Event-driven updates** - Frontend listens for contract events
+- **Automatic network switching** - Switches to Rootstock Testnet when needed
+- **Error handling** - Handles wallet errors and transaction failures
 
-> **⚠️ Important**: While this contract uses production-grade OpenZeppelin libraries (Ownable, ReentrancyGuard, Pausable), it has **not been audited** and should undergo comprehensive security review before mainnet deployment. The contract includes emergency pause functionality and follows security best practices, but formal auditing is recommended for production use.
+> **Note**: This contract uses OpenZeppelin libraries but has not been formally audited. Security review recommended before mainnet deployment.
 
 ## 🌐 Network
 
@@ -161,12 +159,6 @@ npm run dev
 - Simple frontend showing locked/unlocked state
 - Testnet-focused demo
 
-**Out of Scope:**
-- Subscriptions
-- Refunds
-- Streaming payments
-- Custody solutions
-- External payment APIs
 
 ## 🛠️ Tech Stack
 
